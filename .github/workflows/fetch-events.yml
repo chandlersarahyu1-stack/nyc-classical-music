@@ -26,8 +26,8 @@
 
         - name: Fetch events from Ticketmaster
           env:
-            TICKETMASTER_API_KEY: ${{
-  secrets.TICKETMASTER_API_KEY }}
+            TICKETMASTER_API_KEY: "${{
+  secrets.TICKETMASTER_API_KEY }}"
           run: python fetch_events.py
 
         - name: Commit updated events.json
@@ -37,7 +37,7 @@
             git config user.name "github-actions[bot]"
             git add events.json
             if git diff --staged --quiet; then
-              echo "No changes to events.json —
+              echo "No changes to events.json -
   skipping commit."
             else
               git commit -m "chore: update events data
