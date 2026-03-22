@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYC Classical — Upcoming Orchestral Concerts in New York City</title>
+  <meta name="description" content="Every upcoming orchestral and classical music concert in New York City. Browse events at Carnegie Hall, Lincoln Center, and more — with direct ticket links.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0b0b1e;
+      --bg-card:      #13132b;
+      --bg-card-h:    #1a1a36;
+      --gold:         #c9a84c;
+      --gold-lt:      #e2c46e;
+      --text:         #e6e6f2;
+      --muted:        #8080a8;
+      --border:       #252545;
+      --border-lt:    #35355a;
+      --green:        #52c47a;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Header ────────────────────────────────────────────────── */
+    header {
+      background: rgba(11, 11, 30, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 1.5rem;
+    }
+
+    .header-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .brand { display: flex; flex-direction: column; gap: 2px; }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.03em;
+      line-height: 1;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .search-wrap { flex: 1; max-width: 460px; min-width: 180px; }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-lt);
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus { border-color: var(--gold); }
+
+    /* ── Filter Bar ─────────────────────────────────────────────── */
+    .filter-bar {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 1.5rem;
+      position: sticky;
+      top: 70px;
+      z-index: 90;
+    }
+
+    .filter-bar-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-btns { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+    .qbtn {
+      background: transparent;
+      border: 1px solid var(--border-lt);
+      border-radius: 20px;
+      padding: 0.3rem 0.85rem;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .qbtn:hover { border-color: var(--gold); color: var(--gold); }
+    .qbtn.active { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 600; }
+
+    .secondary { display: flex; gap: 0.6rem; margin-left: auto; align-items: center; }
+
+    .fsel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-lt);
+      border-radius: 8px;
+      padding: 0.3rem 0.7rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .fsel:focus { border-color: var(--gold); }
+
+    /* ── Main ───────────────────────────────────────────────────── */
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .results-count { font-size: 0.82rem; color: var(--muted); }
+    .results-count strong { color: var(--text); font-weight: 500; }
+
+    .last-updated { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Grid ───────────────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.15rem;
+    }
+
+    /* ── Card ───────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold);
+      box-shadow: 0 10px 36px rgba(201, 168, 76, 0.12);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 155px;
+      object-fit: cover;
+      background: var(--bg);
+      display: block;
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 155px;
+      background: linear-gradient(140deg, #191934 0%, #0d0d20 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-img-placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.18;
+    }
+
+    .card-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.45rem;
+    }
+
+    .card-date {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .card-performers {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .card-venue {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.35rem;
+    }
+
+    .card-venue-dot {
+      color: var(--gold);
+      font-size: 0.6rem;
+      margin-top: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+
+    .card-price {
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .card-price.free { color: var(--green); font-weight: 600; }
+    .card-price.unknown { color: var(--muted); font-size: 0.72rem; }
+
+    .ticket-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--gold);
+      color: #000;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.38rem 0.85rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      transition: background 0.18s;
+      flex-shrink: 0;
+    }
+    .ticket-btn:hover { background: var(--gold-lt); }
+
+    /* ── Empty / Loading States ─────────────────────────────────── */
+    .state-box {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .state-box h3 { font-size: 1rem; color: var(--text); margin-bottom: 0.4rem; }
+    .state-box p  { font-size: 0.85rem; color: var(--muted); }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--border-lt);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.9;
+    }
+    footer a { color: var(--gold); }
+    footer a:hover { color: var(--gold-lt); }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .filter-bar { top: 80px; }
+      .secondary { margin-left: 0; width: 100%; }
+      .fsel { flex: 1; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-name">NYC Classical</div>
+        <div class="brand-sub">Orchestral Concerts in New York City</div>
+      </div>
+      <div class="search-wrap">
+        <input
+          id="search"
+          class="search-input"
+          type="search"
+          placeholder="Search events, venues, performers&#8230;"
+          autocomplete="off"
+          spellcheck="false"
+        >
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Filter Bar ──────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <div class="filter-bar-inner">
+      <div class="quick-btns" id="quick-btns">
+        <button class="qbtn active" data-range="all">All Upcoming</button>
+        <button class="qbtn" data-range="tonight">Tonight</button>
+        <button class="qbtn" data-range="weekend">This Weekend</button>
+        <button class="qbtn" data-range="week">This Week</button>
+        <button class="qbtn" data-range="month">This Month</button>
+      </div>
+      <div class="secondary">
+        <select class="fsel" id="venue-sel">
+          <option value="">All Venues</option>
+        </select>
+        <select class="fsel" id="sort-sel">
+          <option value="date">Date (Soonest)</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Content ────────────────────────────────────────────── -->
+  <main>
+    <div class="results-bar">
+      <div class="results-count" id="results-count"></div>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+    <div class="grid" id="grid">
+      <div class="state-box">
+        <div class="spinner"></div>
+        <p>Loading events&hellip;</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer>
+    <div>Event data provided by <a href="https://developer.ticketmaster.com" target="_blank" rel="noopener">Ticketmaster</a>. Updated automatically every 6 hours.</div>
+    <div style="margin-top:0.25rem; color: #555575;">Not all events may be listed. Always verify details with the venue directly.</div>
+  </footer>
+
+  <!-- ── JavaScript ─────────────────────────────────────────────── -->
+  <script>
+    'use strict';
+
+    // ── State ──────────────────────────────────────────────────────
+    let allEvents = [];
+    let activeRange = 'all';
+    let activeVenue = '';
+    let activeSort  = 'date';
+    let searchQuery = '';
+
+    // ── Helpers ────────────────────────────────────────────────────
+    function today() {
+      const d = new Date();
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function parseDate(str) {
+      if (!str) return null;
+      const [y, m, d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function fmtDate(dateStr, timeStr, timeTbd) {
+      if (!dateStr) return 'Date TBA';
+      const d = parseDate(dateStr);
+      const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      let s = `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+      if (!timeTbd && timeStr) {
+        const [hh, mm] = timeStr.split(':').map(Number);
+        const ampm = hh < 12 ? 'AM' : 'PM';
+        const h12  = hh % 12 || 12;
+        s += ` &middot; ${h12}:${String(mm).padStart(2,'0')}&nbsp;${ampm}`;
+      }
+      return s;
+    }
+
+    function fmtPrice(min, max) {
+      if (min === null && max === null) return null;
+      if (min === 0)   return 'Free';
+      if (min === max || max === null) return `$${Math.round(min)}`;
+      return `$${Math.round(min)}&ndash;$${Math.round(max)}`;
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    // ── Date Range Logic ───────────────────────────────────────────
+    function getRange(range) {
+      const t   = today();
+      const dow = t.getDay();
+      if (range === 'tonight') {
+        return { start: t, end: t };
+      }
+      if (range === 'weekend') {
+        // Current or next Sat–Sun
+        const toSat = dow === 6 ? 0 : (6 - dow + 7) % 7;
+        const sat   = new Date(t); sat.setDate(t.getDate() + toSat);
+        const sun   = new Date(sat); sun.setDate(sat.getDate() + 1);
+        const start = (dow === 0 || dow === 6) ? t : sat;
+        const end   = dow === 0 ? t : sun;
+        return { start, end };
+      }
+      if (range === 'week') {
+        const end = new Date(t); end.setDate(t.getDate() + 6);
+        return { start: t, end };
+      }
+      if (range === 'month') {
+        const end = new Date(t); end.setMonth(t.getMonth() + 1); end.setDate(end.getDate() - 1);
+        return { start: t, end };
+      }
+      return null; // 'all'
+    }
+
+    // ── Filter + Sort ──────────────────────────────────────────────
+    function filtered() {
+      const range = getRange(activeRange);
+      const q     = searchQuery.toLowerCase();
+
+      let evts = allEvents.filter(e => {
+        const d = parseDate(e.date);
+
+        if (range && d) {
+          if (d < range.start || d > range.end) return false;
+        }
+
+        if (activeVenue && e.venue !== activeVenue) return false;
+
+        if (q) {
+          const hay = `${e.name} ${e.venue} ${(e.performers||[]).join(' ')}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+
+        return true;
+      });
+
+      evts = [...evts].sort((a, b) => {
+        if (activeSort === 'date') {
+          return (a.date||'').localeCompare(b.date||'') || (a.time||'').localeCompare(b.time||'');
+        }
+        const pa = a.min_price ?? (activeSort === 'price-asc' ? 1e9 : -1);
+        const pb = b.min_price ?? (activeSort === 'price-asc' ? 1e9 : -1);
+        return activeSort === 'price-asc' ? pa - pb : pb - pa;
+      });
+
+      return evts;
+    }
+
+    // ── Render ─────────────────────────────────────────────────────
+    function render() {
+      const evts   = filtered();
+      const grid   = document.getElementById('grid');
+      const cntEl  = document.getElementById('results-count');
+
+      cntEl.innerHTML = `Showing <strong>${evts.length}</strong> event${evts.length !== 1 ? 's' : ''}`;
+
+      if (evts.length === 0) {
+        grid.innerHTML = `
+          <div class="state-box">
+            <h3>No events found</h3>
+            <p>Try widening your date range or clearing the search.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = evts.map(e => {
+        const dateHtml  = fmtDate(e.date, e.time, e.time_tbd);
+        const priceRaw  = fmtPrice(e.min_price, e.max_price);
+        const isFree    = priceRaw === 'Free';
+        const priceHtml = priceRaw
+          ? `<span class="card-price${isFree ? ' free' : ''}">${priceRaw}</span>`
+          : `<span class="card-price unknown">Price varies</span>`;
+
+        const performers = (e.performers || []).slice(0, 2).join(', ')
+          + (e.performers && e.performers.length > 2 ? ` +${e.performers.length - 2} more` : '');
+
+        const imgHtml = e.image_url
+          ? `<img class="card-img" src="${esc(e.image_url)}" alt="${esc(e.name)}" loading="lazy"
+               onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1\\'><path d=\\'M9 19V6l12-3v13\\'></path><circle cx=\\'6\\' cy=\\'19\\' r=\\'3\\'></circle><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'></circle></svg></div>'">`
+          : `<div class="card-img-placeholder">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                 <path d="M9 19V6l12-3v13"></path>
+                 <circle cx="6" cy="19" r="3"></circle>
+                 <circle cx="18" cy="16" r="3"></circle>
+               </svg>
+             </div>`;
+
+        return `
+          <div class="card">
+            ${imgHtml}
+            <div class="card-body">
+              <div class="card-date">${dateHtml}</div>
+              <div class="card-name">${esc(e.name)}</div>
+              ${performers ? `<div class="card-performers">${esc(performers)}</div>` : ''}
+              ${e.venue ? `<div class="card-venue"><span class="card-venue-dot">&#9679;</span>${esc(e.venue)}</div>` : ''}
+              <div class="card-footer">
+                ${priceHtml}
+                ${e.ticket_url
+                  ? `<a class="ticket-btn" href="${esc(e.ticket_url)}" target="_blank" rel="noopener noreferrer">Get Tickets &#8594;</a>`
+                  : ''}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Populate Venue Dropdown ────────────────────────────────────
+    function populateVenues() {
+      const venues = [...new Set(allEvents.map(e => e.venue).filter(Boolean))].sort();
+      const sel    = document.getElementById('venue-sel');
+      venues.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ── Listeners ──────────────────────────────────────────────────
+    document.getElementById('quick-btns').addEventListener('click', e => {
+      const btn = e.target.closest('[data-range]');
+      if (!btn) return;
+      document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeRange = btn.dataset.range;
+      render();
+    });
+
+    document.getElementById('venue-sel').addEventListener('change', e => {
+      activeVenue = e.target.value; render();
+    });
+
+    document.getElementById('sort-sel').addEventListener('change', e => {
+      activeSort = e.target.value; render();
+    });
+
+    let _st;
+    document.getElementById('search').addEventListener('input', e => {
+      clearTimeout(_st);
+      _st = setTimeout(() => { searchQuery = e.target.value.trim(); render(); }, 200);
+    });
+
+    // ── Load Data ──────────────────────────────────────────────────
+    async function load() {
+      try {
+        const res  = await fetch('events.json?v=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+
+        allEvents = (data.events || []).filter(e => {
+          if (!e.date) return true;
+          return parseDate(e.date) >= today();
+        });
+
+        if (data.updated) {
+          const d = new Date(data.updated);
+          document.getElementById('last-updated').textContent =
+            'Updated ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+        }
+
+        populateVenues();
+        render();
+      } catch (err) {
+        document.getElementById('grid').innerHTML = `
+          <div class="state-box">
+            <h3>Could not load events</h3>
+            <p>The events data hasn&rsquo;t been generated yet. Run the fetch script or trigger the GitHub Action manually.</p>
+          </div>`;
+        document.getElementById('results-count').textContent = '';
+        console.error(err);
+      }
+    }
+
+    load();
+  </script>
+
+</body>
+</html>
