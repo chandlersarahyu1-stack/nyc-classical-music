@@ -128,10 +128,14 @@ def parse_event(event):
         # Sub-genre (e.g., Symphony, Opera, Chamber Music)
         classifications = event.get("classifications", [])
         subgenre = ""
-        if classifications:
-            sg = classifications[0].get("subGenre", {})
-            if sg:
-                subgenre = sg.get("name", "")
+         if classifications:
+          segment = classifications[0].get("segment",
+  {})
+          segment_name = segment.get("name", "") if
+  segment else ""
+          if segment_name and segment_name != "Music":
+              return None
+          sg = classifications[0].get("subGenre", {})
 
         return {
             "id": event_id,
