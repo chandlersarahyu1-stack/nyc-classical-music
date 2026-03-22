@@ -1,0 +1,46 @@
+  name: Fetch Events
+
+  on:
+    schedule:
+      - cron: '0 */6 * * *'
+    workflow_dispatch:
+
+  permissions:
+    contents: write
+
+  jobs:
+    fetch:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out repository
+          uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.11'
+
+        - name: Install dependencies
+          run: pip install requests
+
+        - name: Fetch events from Ticketmaster
+          env:
+            TICKETMASTER_API_KEY: ${{
+  secrets.TICKETMASTER_API_KEY }}
+          run: python fetch_events.py
+
+        - name: Commit updated events.json
+          run: |
+            git config user.email
+  "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git add events.json
+            if git diff --staged --quiet; then
+              echo "No changes to events.json —
+  skipping commit."
+            else
+              git commit -m "chore: update events data
+   [skip ci]"
+              git push
+            fi
