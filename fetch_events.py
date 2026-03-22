@@ -31,6 +31,7 @@ def fetch_all_events():
     while True:
         params = {
             "apikey": API_KEY,
+            "segmentName": "Music",
             "genreName": "Classical",
             "city": "New York",
             "stateCode": "NY",
