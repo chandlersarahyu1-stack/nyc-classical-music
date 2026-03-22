@@ -1,4 +1,4 @@
-  name: Fetch Events
+ name: Fetch Events
 
   on:
     schedule:
@@ -36,11 +36,6 @@
   "github-actions[bot]@users.noreply.github.com"
             git config user.name "github-actions[bot]"
             git add events.json
-            if git diff --staged --quiet; then
-              echo "No changes to events.json -
-  skipping commit."
-            else
-              git commit -m "chore: update events data
-   [skip ci]"
-              git push
-            fi
+            git commit -m "Update events data [skip
+  ci]" --allow-empty
+            git push
